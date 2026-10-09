@@ -1,0 +1,22 @@
+# (Contracts) Compiler files
+contracts/cache/
+contracts/out/
+
+# (Contracts) Commonly ignored directories
+contracts/.logs/
+contracts/.ignore/
+
+# (Contracts) Ignores development broadcast logs
+contracts/broadcast/
+!/contracts/broadcast
+/contracts/broadcast/*/31337/
+/contracts/broadcast/**/dry-run/
+
+# (Contracts) Docs
+contracts/docs/
+
+# (Contracts) Dotenv file
+contracts/.env
+contracts/.env.*
+!contracts/.env.example
+
