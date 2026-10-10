@@ -19,7 +19,7 @@ contract DeployRouter is Script {
         }
         string memory existingJson = vm.readFile(path);
         address factory = vm.parseJsonAddress(existingJson, ".factory");
-        require(factory != address(0), "DeployRouter: factory ausente em deployments/<chainId>.json");
+        require(factory != address(0), "DeployRouter: factory missing in deployments/<chainId>.json");
 
         address wrappedNative = _resolveWrappedNative(existingJson, path);
 
@@ -39,23 +39,23 @@ contract DeployRouter is Script {
         internal
         returns (address wrappedNative)
     {
-        // 1) Override explícito via .env (ignora string vazia).
+        // 1) Explicit override via .env (it ignores empty string).
         string memory overrideStr = vm.envOr("WRAPPED_NATIVE", string(""));
         if (bytes(overrideStr).length != 0) {
             wrappedNative = vm.parseAddress(overrideStr);
         }
 
-        // 2) Reaproveita um endereço já gravado por um deploy anterior nesta rede.
+        // 2) Reuse an address already registered by a previous deploy in this network.
         if (wrappedNative == address(0) && vm.keyExistsJson(existingJson, ".wrappedNative")) {
             wrappedNative = vm.parseJsonAddress(existingJson, ".wrappedNative");
         }
 
-        // 3) Mapa canônico por chainId.
+        // 3) Canonical map by chainId.
         if (wrappedNative == address(0)) {
             wrappedNative = NetworkConfig.wrappedNative(block.chainid);
         }
 
-        // 4) Chain local (Anvil/Hardhat) sem endereço conhecido: faz deploy de um MockWNative.
+        // 4) Local chain (Anvil/Hardhat) without known address: make deploy from a MockWNative.
         if (wrappedNative == address(0) && (block.chainid == ANVIL_CHAIN_ID || block.chainid == 1337)) {
             vm.startBroadcast(vm.envUint("PRIVATE_KEY"));
             wrappedNative = address(new MockWNative("Wrapped Native", "WNATIVE"));
@@ -63,7 +63,7 @@ contract DeployRouter is Script {
             console2.log("MockWNative deployado:", wrappedNative);
         }
 
-        require(wrappedNative != address(0), "DeployRouter: defina WRAPPED_NATIVE no .env para esta rede");
+        require(wrappedNative != address(0), "DeployRouter: define WRAPPED_NATIVE into .env for this network");
         vm.writeJson(JsonUtils.quote(vm.toString(wrappedNative)), path, ".wrappedNative");
     }
 

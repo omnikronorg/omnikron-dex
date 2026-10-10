@@ -3,8 +3,8 @@ pragma solidity 0.8.36;
 
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-/// @notice WETH mínimo (WETH9-like) para desenvolvimento local (Anvil) e testes.
-/// @dev Implementa deposit() payable / withdraw(uint256) — mesma superfície que o Router espera.
+/// @notice WETH minimal (WETH9-like) for local development (Anvil) and tests.
+/// @dev Implements deposit() payable / withdraw(uint256) — same interface expected by the Router.
 contract MockWNative is ERC20 {
     constructor(string memory name_, string memory symbol_) ERC20(name_, symbol_) {}
 
