@@ -20,3 +20,46 @@ contracts/.env
 contracts/.env.*
 !contracts/.env.example
 
+
+# (Frond-end) dex-web
+
+# dependencies
+dex-web/node_modules
+dex-web/.pnp
+dex-web/.pnp.*
+dex-web/.yarn/*
+!dex-web/.yarn/patches
+!dex-web/.yarn/plugins
+!dex-web/.yarn/releases
+!dex-web/.yarn/versions
+
+# testing
+/dex-web/coverage
+
+# next.js
+/dex-web/.next/
+/dex-web/out/
+
+# production
+/dex-web/build
+
+# misc
+dex-web/.DS_Store
+dex-web/*.pem
+
+# debug
+dex-web/npm-debug.log*
+dex-web/yarn-debug.log*
+dex-web/yarn-error.log*
+dex-web/.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+dex-web/.env*
+!dex-web/.env.example*
+
+# vercel
+dex-web/.vercel
+
+# typescript
+dex-web/*.tsbuildinfo
+dex-web/next-env.d.ts
