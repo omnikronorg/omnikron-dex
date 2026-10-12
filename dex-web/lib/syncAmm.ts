@@ -3,6 +3,16 @@ import { basename, join, resolve } from 'node:path';
 import { MongoHelper } from '@/lib/mongoHelper';
 import { Amm } from '@/models/amm';
 
+// Display metadata per chainId: the network name/logo shown in the UI.
+// No contract addresses live here (wrappedNative/router come from the deploy JSON).
+const chainDisplayMeta: Record<number, { chainName: string; chainLogoURI: string }> = {
+    1:     { chainName: 'Ethereum',          chainLogoURI: '/network/ethereum.svg' },
+    56:    { chainName: 'BNB Chain',         chainLogoURI: '/network/bnb.svg' },
+    97:    { chainName: 'BNB Chain Testnet', chainLogoURI: '/network/bnb.svg' },
+    137:   { chainName: 'Polygon',           chainLogoURI: '/network/pol.svg' },
+    31337: { chainName: 'Anvil Localhost',   chainLogoURI: '/network/generic.svg' },
+};
+
 const ammCollectionName = 'amm';
 
 export async function syncAmmFromDeployments(deploymentsDir?: string): Promise<void>
@@ -20,14 +30,20 @@ export async function syncAmmFromDeployments(deploymentsDir?: string): Promise<v
             continue;
         }
 
+        const meta = chainDisplayMeta[chainId];
+
         const json = JSON.parse(readFileSync(join(dir, file), 'utf8')) as Record<string, string>;
+
         const doc: Amm = {
             chainId,
+            chainName: meta?.chainName ?? '',
+            chainLogoURI: meta?.chainLogoURI ?? '/network/generic.svg',
             platformToken: json.omnikronToken,
             factory: json.factory,
             wrappedNative: json.wrappedNative,
-            router: json.router,
-        };
+            router: json.router
+       };
+
         seen.add(chainId);
 
         const existing = await amm.findOne({ chainId });
@@ -39,6 +55,8 @@ export async function syncAmmFromDeployments(deploymentsDir?: string): Promise<v
         }
 
         const changed =
+            existing.chainName !== doc.chainName ||
+            existing.chainLogoURI !== doc.chainLogoURI ||
             existing.platformToken !== doc.platformToken ||
             existing.factory !== doc.factory ||
             existing.wrappedNative !== doc.wrappedNative ||
@@ -51,6 +69,8 @@ export async function syncAmmFromDeployments(deploymentsDir?: string): Promise<v
             await amm.updateOne(
                 { chainId },
                 { $set: {
+                    chainName: doc.chainName,
+                    chainLogoURI: doc.chainLogoURI,
                     platformToken: doc.platformToken,
                     factory: doc.factory,
                     wrappedNative: doc.wrappedNative,

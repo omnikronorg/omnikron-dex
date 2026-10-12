@@ -1,6 +1,7 @@
 import { syncAmmFromDeployments } from '@/lib/syncAmm';
 import { loadTokenList } from './lib/tokens';
 import { seedTokensIfEmpty } from './lib/seedTokens';
+import { loadNetworkList } from './lib/networks';
 
 /**
  * Boot hook called once when a new Next.js server instance is initiated,
@@ -35,6 +36,8 @@ export async function register(): Promise<void>
         // Preload the full token list into the in-memory cache so requests
         // reuse it without querying MongoDB on every call.
         await loadTokenList();
+
+        await loadNetworkList();
     }
     catch(error)
     {
