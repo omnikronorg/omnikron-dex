@@ -194,7 +194,7 @@ function SwapTokenSelect({onClose, isTokenSelectFrom, chainId, walletAddress, On
                                         alt={token.symbol}
                                         width={16}
                                         height={16}
-                                        className="rounded-full"
+                                        className="swap-modal-popular-token-icon rounded-full"
                                     />
                                     <span>{token.symbol}</span>
                                 </button>

@@ -266,6 +266,10 @@ body {
     background-color: var(--color-background3);
 }
 
+.swap-modal-popular-token-icon{
+
+}
+
 .swap-modal-row-name{
     color: var(--color-default);
 }
