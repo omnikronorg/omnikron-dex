@@ -1,7 +1,6 @@
 import { syncAmmFromDeployments } from '@/lib/syncAmm';
-import { loadTokenList } from './lib/tokens';
 import { seedTokensIfEmpty } from './lib/seedTokens';
-import { loadNetworkList } from './lib/networks';
+import { loadNetworkList, loadTokenList, loadChainConfigList } from './lib/dataLoaders.server';
 
 /**
  * Boot hook called once when a new Next.js server instance is initiated,
@@ -38,6 +37,8 @@ export async function register(): Promise<void>
         await loadTokenList();
 
         await loadNetworkList();
+        await loadChainConfigList();
+
     }
     catch(error)
     {

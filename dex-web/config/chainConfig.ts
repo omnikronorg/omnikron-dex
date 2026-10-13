@@ -1,7 +1,8 @@
-import { MongoHelper } from "@/lib/mongoHelper";
-import { Amm } from "@/models/amm";
+// Client-safe: AMM config cache + synchronous getter. Filled on the server
+// (dataLoaders.server.ts) and hydrated on the client via Providers.
 
-export interface ChainConfig {
+export interface ChainConfig
+{
     chainId: number;
     wrappedNative: string;
     platformToken: string;
@@ -9,31 +10,30 @@ export interface ChainConfig {
     router: string;
 }
 
-const ammCollectionName = 'amm';
+// Memory cache of AMM config per chain, loading once at boot
+// (instrumentation.ts) — same pattern of the token/network caches.
+let chainConfigList: ChainConfig[] | null = null;
 
-export async function getChainConfig(chainId: number | undefined): Promise<ChainConfig | null>
+// Replaces the cached config list. Called by the server loader and by the
+// client Providers during hydration.
+export function setChainConfigList(list: ChainConfig[]): void
 {
-    if (!chainId)
+    chainConfigList = list;
+}
+
+// Full (unfiltered) config list across all chains. Used by the server layout
+// to build the hydration payload for Providers.
+export function getChainConfigList(): ChainConfig[]
+{
+    return chainConfigList ?? [];
+}
+
+export function getChainConfig(chainId: number | undefined): ChainConfig | null
+{
+    if(!chainId)
     {
         return null;
     }
 
-    const amm = new MongoHelper<Amm>(ammCollectionName);
-
-    const chain = await amm.findOne({ chainId: chainId });
-
-    if(!chain)
-    {
-        return null;
-    }
-
-    const result : ChainConfig = {
-        chainId: chain.chainId,
-        wrappedNative: chain.wrappedNative,
-        platformToken: chain.platformToken,
-        factory: chain.factory,
-        router: chain.router
-    }
-
-    return result;
+    return (chainConfigList ?? []).find((config) => config.chainId === chainId) ?? null;
 }

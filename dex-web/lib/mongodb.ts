@@ -1,3 +1,8 @@
+// SERVER-ONLY MODULE — do not import from any Client Component.
+// The MongoDB driver depends on Node.js built-ins (e.g. child_process) that
+// do not exist in the browser. Importing this from client code breaks the
+// bundle with "Can't resolve 'child_process'". Keep all Mongo access on the
+// server (dataLoaders.server.ts, syncAmm.ts, seedTokens.ts).
 import { MongoClient, MongoClientOptions } from 'mongodb';
 
 if (!process.env.MONGODB_URI)

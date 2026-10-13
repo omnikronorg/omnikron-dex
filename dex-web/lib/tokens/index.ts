@@ -1,5 +1,8 @@
-import { MongoHelper } from "../mongoHelper";
-import { Token as TokenModel } from "@/models/token";
+import type { Token as TokenModel } from "@/models/token";
+
+// Client-safe token cache + synchronous getters. The cache is filled on the
+// server (dataLoaders.server.ts) and hydrated on the client via Providers.
+// Do NOT import MongoHelper/mongodb here.
 
 // Formato de um token exibido na interface.
 export interface Token
@@ -12,42 +15,21 @@ export interface Token
     isNative?: boolean;
 }
 
-
-// In-memory cache of the full token list (all chains). Loaded once at boot
-// (see instrumentation.ts) and reused to avoid querying MongoDB on every call.
+// In-memory cache of the full token list (all chains).
 let tokenList: TokenModel[] | null = null;
 
-// Guards concurrent lazy loads so the database is queried at most once.
-let tokenListPromise: Promise<void> | null = null;
-
-// Loads the full token collection (no filter) into the in-memory cache.
-// Safe to call repeatedly: it queries the database only while the cache is
-// still empty. Called once during server startup (instrumentation.ts).
-export async function loadTokenList(): Promise<void>
+// Replaces the cached token list. Called by the server loader and by the
+// client Providers during hydration.
+export function setTokenList(list: TokenModel[]): void
 {
-    const tokenCollectionName = 'token';
-    const tokenCollection = new MongoHelper<TokenModel>(tokenCollectionName);
+    tokenList = list;
+}
 
-    if(tokenList !== null)
-    {
-        return;
-    }
-
-    if(!tokenListPromise)
-    {
-        tokenListPromise = tokenCollection.findMany({}).then(
-            (tokens) => {
-                tokenList = tokens;
-            },
-            (error) => {
-                // Allow a later call to retry after a transient failure.
-                tokenListPromise = null;
-                throw error;
-            },
-        );
-    }
-
-    await tokenListPromise;
+// Full (unfiltered) token list across all chains. Used by the server layout to
+// build the hydration payload for Providers.
+export function getTokenListAll(): TokenModel[]
+{
+    return tokenList ?? [];
 }
 
 // Retorna a lista de tokens suportados para a rede informada.

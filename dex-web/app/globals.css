@@ -1,26 +1,370 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
     --background: #0a0a0a;
     --foreground: #ededed;
-  }
+    --color-primary: #f6339a;
+    --color-secondary: #627eea;
+    --color-default: #ffffff;
+    --color-default2: #ffffffa6;
+    --color-default3: #22252F;
+    --color-default4: #1C1E24;
+    --color-default5: #99a1af;
+    --color-default6: #4a5565;
+    --color-default7: #252832;
+    --color-background2: #0D0E12;
+    --color-background3: #13141A;
+    --color-background4: #1f1f1f;
+    --color-critical: #ff593c;
+    --color-warning: #ffbf17;
+    --color-success: #009875;
+    --color-error: #980000;
+    --color-radio-check: #ffffff;
 }
 
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.notification-success{
+    background-color: var(--color-success);
+    color: var(--color-default);
+    border-color: var(--color-default5);
+}
+
+.notification-error{
+    background-color: var(--color-error);
+    color: var(--color-default);
+    border-color: var(--color-default5);
+}
+
+.notification-info{
+    background-color: var(--color-background2);
+    color: var(--color-default);
+    border-color: var(--color-default5);
+}
+
+.notification-close-button{
+    color: var(--color-default2);
+    cursor: pointer;
+}
+
+.notification-close-button:hover{
+    color: var(--color-default);
+}
+
+@theme { --animate-bounce-short: bounce-short 0.4s ease-out; }
+@keyframes bounce-short { 0% { transform: translateY(-8px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+
+
+.swap-card{
+    background-color: var(--color-background2);
+    color: var(--color-default);
+    border-color: var(--color-default4);
+}
+
+.swap-header-button-selected{
+    color: var(--color-default);
+    border-color: var(--color-primary);
+    cursor: pointer;
+}
+
+.swap-header-button{
+    color: var(--color-default2);
+    cursor: pointer;
+}
+
+.swap-header-button:hover{
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.swap-slippage-percent-value{
+    color: var(--color-default2);
+}
+
+.swap-slippage-warning-value{
+    color: var(--color-warning) !important;
+}
+
+.swap-slippage-critical-value{
+    color: var(--color-critical) !important;
+}
+
+.swap-input-panel{
+    background-color: var(--color-background4);
+}
+
+.swap-input-panel:hover{
+    border-color: var(--color-default3);
+}
+
+.swap-label{
+    color: var(--color-default5);
+}
+
+.swap-input::placeholder{
+    color: var(--color-default6);
+}
+
+.swap-token-select-btn{
+    background-color: var(--color-background3);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.swap-token-select-btn:hover{
+    background-color: var(--color-background2);
+}
+
+.swap-button-arrow{
+    background-color: var(--color-background4);
+    border-color: var(--color-background2);
+    color: var(--color-default5);
+}
+
+.swap-button-arrow:hover{
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.swap-token-balance{
+    color: var(--color-default5);
+}
+
+.swap-radio-button{
+    cursor: pointer;
+}
+
+.swap-radio-button::before {
+    background-color: var(--color-radio-check);
+}
+
+.swap-radio-button:checked {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+}
+
+.swap-radio-button-label{
+    color: var(--color-default5);
+    cursor: pointer;
+}
+
+.swap-connect-button{
+    background-color: color-mix(in oklab, var(--color-primary) 20%, transparent);
+    color: var(--color-primary);
+    cursor: pointer;
+}
+
+.swap-connect-button:hover{
+    background-color: color-mix(in oklab, var(--color-primary) 30%, transparent);
+}
+
+.swap-action-button{
+    background-color: var(--color-primary);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.swap-action-button-disabled{
+    /* background-color: color-mix(in oklab, var(--color-primary) 5%, transparent); */
+    background-color: var(--color-background3);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.swap-action-button:hover{
+    background-color: color-mix(in oklab, var(--color-primary) 90%, transparent);
+}
+
+.swap-tx-error{
+    color: var(--color-critical);
+}
+
+.swap-modal-overlay{
+    background-color: color-mix(in oklab, var(--background) 50%, transparent);
+}
+
+.swap-modal-area{
+    background-color: var(--color-background2);
+    border-color: var(--color-default6);
+}
+
+.swap-modal-close-button{
+    color: var(--color-default2);
+    cursor: pointer;
+}
+
+.swap-modal-close-button:hover{
+    color: var(--color-default);
+}
+
+.swap-modal-title{
+    color: var(--color-default);
+}
+
+.swap-modal-body{
+    color: var(--color-default);
+}
+
+.swap-modal-search-container{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+}
+
+.swap-modal-search-container:focus-within {
+    border-color: color-mix(in oklab, var(--color-primary) 50%, transparent);
+}
+
+.swap-modal-search-icon{
+    color: var(--color-default6);
+}
+
+.swap-modal-search-input{
+    color: var(--color-default);
+}
+
+.swap-modal-tag{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+    color: var(--color-default);
+}
+
+.swap-modal-tag:hover {
+    background-color: var(--color-default4);
+    border-color: var(--color-default3);
+}
+
+.swap-modal-divider{
+    background-color: var(--color-default4);
+}
+
+.swap-modal-list{
+
+}
+
+.swap-modal-list::-webkit-scrollbar {
+    width: 4px;
+}
+.swap-modal-list::-webkit-scrollbar-thumb {
+    background-color: var(--color-default4);
+    border-radius: 4px;
+}
+
+.swap-modal-row{
+    color: var(--color-default);
+}
+
+.swap-modal-row:hover {
+    background-color: color-mix(in oklab, var(--color-background3) 60%, transparent);
+}
+
+.swap-modal-row-icon{
+    background-color: var(--color-background3);
+}
+
+.swap-modal-row-name{
+    color: var(--color-default);
+}
+
+.swap-modal-row-symbol{
+    color: var(--color-default5);
+}
+
+.swap-modal-row-balance{
+    color: var(--color-default);
+}
+
+.swap-settings-modal-slippage-auto-button{
+    cursor: pointer;
+}
+
+.swap-settings-modal-slippage-auto-button:hover{
+    color: var(--color-default);
+    background-color: color-mix(in oklab, var(--color-primary) 10%, transparent);
+}
+
+.swap-settings-modal-slippage-auto-button-checked{
+    background-color: color-mix(in oklab, var(--color-primary) 20%, transparent);
+    color: var(--color-primary);
+    border-color: color-mix(in oklab, var(--color-primary) /* oklch(65.6% 0.241 354.308) = #f6339a */ 30%, transparent);
+}
+
+.swap-settings-modal-slippage-auto-button-unchecked{
+    background-color: var(--color-background3);
+    color: var(--color-default2);
+    border-color: var(--color-default4);
+}
+
+.header-container{
+    background: var(--background);
+    border-color: var(--color-default4);
+}
+
+.header-logo{
+    color: var(--color-default);
+}
+
+.header-nav{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+}
+
+.header-nav-link{
+    background-color: var(--color-background);
+    color: var(--color-default5);
+}
+
+.header-nav-link-selected{
+    background-color: var(--color-default4);
+    color: var(--color-default);
+}
+
+.header-nav-link:hover,
+.header-nav-link-selected:hover{
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.header-connect-button{
+    background-color: var(--color-primary);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.header-connect-button:hover{
+    background-color: color-mix(in oklab, var(--color-primary) 90%, transparent);
+}
+
+.header-account-button{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.header-account-button:hover{
+    background-color: var(--color-background2);
+}
+
+.header-account-button-arrow{
+    color: var(--color-default5);
+}
+
+.header-network-select-btn{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.header-network-select-btn:hover{
+    background-color: var(--color-background2);
+}
+
+.header-network-select-btn-arrow{
+    color: var(--color-default5);
 }
