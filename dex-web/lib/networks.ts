@@ -1,6 +1,6 @@
-import { Amm } from "@/models/amm";
-import { MongoHelper } from "./mongoHelper";
-import { supportedChains } from "./chains";
+// Client-safe: network cache + synchronous getters. The cache is filled on the
+// server (dataLoaders.server.ts) and hydrated on the client via Providers.
+// Do NOT import MongoHelper/mongodb here.
 
 export interface Network
 {
@@ -11,33 +11,15 @@ export interface Network
     wrappedNative: string;
 }
 
-const ammCollectionName = 'amm';
-
-// In-memory cache of the network list, loaded once at boot (instrumentation.ts).
+// In-memory cache of the network list. Populated on the server at boot
+// (instrumentation.ts) and hydrated on the client (Providers).
 let networkList: Network[] | null = null;
 
-// Loads network metadata into the in-memory cache. Must run after
-// syncAmmFromDeployments() so chainName/chainLogoURI/wrappedNative exist.
-export async function loadNetworkList(): Promise<void>
+// Replaces the cached network list. Called by the server loader and by the
+// client Providers during hydration.
+export function setNetworkList(list: Network[]): void
 {
-    if(networkList !== null)
-    {
-        return;
-    }
-
-    const amm = new MongoHelper<Amm>(ammCollectionName);
-    const rows = await amm.findMany({});
-
-    networkList = supportedChains.map((chain) => {
-        const row = rows.find((r) => r.chainId === chain.id);
-        return {
-            id: chain.id,
-            name: row?.chainName || chain.name,                 // chainName do banco
-            symbol: chain.nativeCurrency.symbol,                // símbolo do viem (fonte única)
-            logoURI: row?.chainLogoURI || '/network/generic.svg',
-            wrappedNative: row?.wrappedNative || '',
-        };
-    });
+    networkList = list;
 }
 
 export function getNetworkList(): Network[]
