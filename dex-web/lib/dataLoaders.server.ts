@@ -13,6 +13,27 @@ import { setChainConfigList, type ChainConfig } from '@/config/chainConfig';
 const ammCollectionName = 'amm';
 const tokenCollectionName = 'token';
 
+let ensurePromise: Promise<void> | null = null;
+
+// Idempotent: queries MongoDB at most once per server instance. Safe to call
+// from the layout on every request — after the first load the caches are warm.
+export async function ensureDataLoaded(): Promise<void>
+{
+    if(ensurePromise)
+    {
+        return ensurePromise;
+    }
+
+    ensurePromise = (async () =>
+    {
+        await loadTokenList();
+        await loadNetworkList();
+        await loadChainConfigList();
+    })();
+
+    return ensurePromise;
+}
+
 // Loads network metadata into the in-memory cache. Must run after
 // syncAmmFromDeployments() so chainName/chainLogoURI/wrappedNative exist.
 export async function loadNetworkList(): Promise<void>

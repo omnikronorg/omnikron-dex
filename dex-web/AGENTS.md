@@ -30,6 +30,7 @@ Swap principles (applicable to any feature, without oversimplifying):
 - Loading state + disabled button for all on-chain operations; success/error/confirmation notifications.
 - "Insufficient balance" / "gas failure" should be converted into user-friendly messages.
 - Responsive layout, minimal files, reusable React components.
+- I based this Next.js project on the one located in the `~/lab/dex-project/dex-web` directory; however, instead of using local `.json` files, I switched to using MongoDB on the backend to store the data.
 
 `.env` (nerver commit)
 `.env.local` in front-end (gitignored)

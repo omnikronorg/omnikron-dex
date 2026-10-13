@@ -1,7 +1,3 @@
-import { syncAmmFromDeployments } from '@/lib/syncAmm';
-import { seedTokensIfEmpty } from './lib/seedTokens';
-import { loadNetworkList, loadTokenList, loadChainConfigList } from './lib/dataLoaders.server';
-
 /**
  * Boot hook called once when a new Next.js server instance is initiated,
  * before the server is ready to handle requests. Synchronizes the "amm"
@@ -18,6 +14,17 @@ export async function register(): Promise<void>
     {
         return;
     }
+
+    if(process.env.NEXT_PHASE === 'phase-production-build')
+    {
+        return;
+    }
+
+    // Dynamic import: only for nodejs bundle, never in edge (avoid node:fs in Edge)
+    const { syncAmmFromDeployments } = await import('@/lib/syncAmm');
+    const { seedTokensIfEmpty } = await import('./lib/seedTokens');
+    const { loadNetworkList, loadTokenList, loadChainConfigList } = await import('./lib/dataLoaders.server');
+
 
     // Skip while building: writing to the database during `next build` is
     // undesirable and the deployments directory may not be present.
