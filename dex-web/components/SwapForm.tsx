@@ -19,6 +19,7 @@ import NotificationCard, { NotificationCardProps } from "./NotificationCard";
 import { readContracts } from "wagmi/actions";
 import { wagmiConfig } from "@/lib/wagmi";
 import { routerAbi } from "@/lib/abi/router";
+import Link from "next/link";
 
 interface SwapFormProps
 {
@@ -814,7 +815,10 @@ function SwapForm({chainId, changeChainId, isTokenSelectOpen, setIsTokenSelectOp
             <div className="flex justify-between items-center mb-3 px-1">
                 <div className="flex gap-4 font-medium">
                     <button className="swap-header-button-selected border-b-2 pb-1">Swap</button>
-                    <button className="swap-header-button pb-1">Liquidity Pools</button>
+                    <Link
+                        href="/pools" 
+                        className="swap-header-button pb-1"
+                    >Liquidity Pools</Link>
                 </div>
                 
                 <div className="flex justify-between items-center gap-1">
