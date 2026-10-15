@@ -48,4 +48,11 @@ export const pairAbi = [
         ],
         outputs: [{ name: "", type: "bool" }],
     },
+    {
+        type: "function",
+        name: "SWAP_FEE_BPS",
+        stateMutability: "view",
+        inputs: [],
+        outputs: [{ name: "", type: "uint256" }],
+    },
 ] as const;
