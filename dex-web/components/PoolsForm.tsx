@@ -1,7 +1,9 @@
 import { findSupportedChain } from "@/lib/chains";
-import { PlusIcon } from "lucide-react";
+import { DropletIcon, DropletsIcon, PlusIcon } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { useConnection } from "wagmi";
+import CreatePoolWindow from "./CreatePoolWindow";
 
 interface PoolsFormProps
 {
@@ -9,11 +11,22 @@ interface PoolsFormProps
     changeChainId(value: number): void;
 }
 
-
 function PoolsForm({chainId, changeChainId}: PoolsFormProps)
 {
     const { address: walletAddress, isConnected } = useConnection();
     const chain = findSupportedChain(chainId);
+
+    const [createPoolWindowOpened, setCreatePoolWindowOpened] = useState(false);
+
+    function OnCreatePoolWindowOpen()
+    {
+        setCreatePoolWindowOpened(true);
+    }
+
+    function OnCreatePoolWindowClose()
+    {
+        setCreatePoolWindowOpened(false);
+    }
 
     return (
         <div className="swap-card w-full max-w-[480px] p-4 rounded-3xl border shadow-xl">
@@ -29,20 +42,32 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
             </div>
             <div className="flex gap-3">
                 <button 
-                    onClick={() => {}}
-                    className="swap-action-button px-3 py-1.5 mt-3 transition-colors rounded-xl font-semibold flex items-center justify-center gap-2"
+                    onClick={() => {
+                        OnCreatePoolWindowOpen();
+                    }}
+                    className="swap-action-alt-button px-3 py-3 mt-3 transition-colors rounded-xl font-semibold flex items-center justify-center gap-2"
                 >
+                    <DropletsIcon />
                     Create Pool
                 </button>
 
                 <button 
                     onClick={() => {}}
-                    className="swap-action-button px-3 py-1.5 mt-3 transition-colors rounded-xl font-semibold flex items-center justify-center gap-2"
+                    className="swap-action-button px-3 py-3 mt-3 transition-colors rounded-xl font-semibold flex items-center justify-center gap-2"
                 >
-                    Add Liquidity
                     <PlusIcon />
+                    Add Liquidity
+                    
                 </button>
             </div>
+
+            {createPoolWindowOpened && (
+                <CreatePoolWindow
+                    chainId={chainId}
+                    changeChainId={changeChainId}
+                    onClose={OnCreatePoolWindowClose}
+                />
+            )}
         </div>
     )
 }

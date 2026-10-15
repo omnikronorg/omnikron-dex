@@ -180,6 +180,27 @@ body {
     background-color: color-mix(in oklab, var(--color-primary) 90%, transparent);
 }
 
+
+.swap-action-alt-button{
+    border-color: var(--color-primary);
+    border-width: 3px;
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.swap-action-alt-button-disabled{
+    color: var(--color-background3);
+    border-color: var(--color-background3);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.swap-action-alt-button:hover{
+    border-color: color-mix(in oklab, var(--color-primary) 90%, transparent);
+}
+
+
+
 .swap-tx-error{
     color: var(--color-critical);
 }
@@ -371,4 +392,123 @@ body {
 
 .header-network-select-btn-arrow{
     color: var(--color-default5);
+}
+
+
+/* ---------- Pools: Create Pool window ---------- */
+
+.pool-step-dot{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+    color: var(--color-default5);
+}
+
+.pool-step-dot-active{
+    background-color: color-mix(in oklab, var(--color-primary) 15%, transparent);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.pool-step-dot-done{
+    background-color: color-mix(in oklab, var(--color-success) 15%, transparent);
+    border-color: var(--color-success);
+    color: var(--color-success);
+}
+
+.pool-step-bar{
+    background-color: var(--color-default4);
+}
+
+.pool-step-label{
+    color: var(--color-default5);
+}
+
+.pool-step-label-active{
+    color: var(--color-default);
+}
+
+.pool-section{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+}
+
+.pool-section:hover{
+    border-color: var(--color-default3);
+}
+
+.pool-section-label{
+    color: var(--color-default5);
+}
+
+.pool-token-button{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.pool-token-button:hover{
+    background-color: var(--color-background2);
+    border-color: var(--color-default3);
+}
+
+.pool-network-button{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.pool-network-button:hover{
+    background-color: var(--color-background2);
+}
+
+.pool-fee-row{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+}
+
+.pool-fee-hint{
+    color: var(--color-default6);
+}
+
+.pool-fee-badge{
+    background-color: color-mix(in oklab, var(--color-success) 12%, transparent);
+    border-color: color-mix(in oklab, var(--color-success) 30%, transparent);
+    color: var(--color-success);
+}
+
+.pool-ratio-field{
+    background-color: var(--color-background3);
+    border-color: var(--color-default4);
+}
+
+.pool-ratio-field:focus-within{
+    border-color: color-mix(in oklab, var(--color-primary) 50%, transparent);
+}
+
+.pool-ratio-field input::placeholder{
+    color: var(--color-default6);
+}
+
+.pool-ratio-suffix{
+    color: var(--color-default5);
+}
+
+.pool-ratio-equals{
+    color: var(--color-default5);
+}
+
+.pool-ratio-hint{
+    color: var(--color-default2);
+}
+
+.pool-note{
+    background-color: color-mix(in oklab, var(--color-warning) 12%, transparent);
+    border-color: color-mix(in oklab, var(--color-warning) 30%, transparent);
+    color: var(--color-warning);
+}
+
+.pool-network-row-selected{
+    background-color: color-mix(in oklab, var(--color-primary) 12%, transparent);
 }
