@@ -811,7 +811,7 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
                                 <label className="pool-section-label text-xs">Start Price</label>
 
                                 <button
-                                    className="swap-header-button text-xs"
+                                    className="swap-feature-button text-xs rounded py-0.5 px-1.5 font-semibold"
                                     onClick={() => setIsPriceStep(false)}
                                 >
                                     Change pair
