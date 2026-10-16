@@ -24,6 +24,7 @@ interface CreatePoolWindowProps
 {
     chainId: number;
     changeChainId(value: number): void;
+    onAddLiquidity?(tokenA: Token, tokenB: Token): void;
     onClose(): void;
 }
 
@@ -41,7 +42,7 @@ function resolveNetworkLogo(logoURI: string): string
     return logoURI && logoURI.length > 0 ? logoURI : "/network/generic.svg";
 }
 
-function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowProps)
+function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onClose}: CreatePoolWindowProps)
 {
     const { address: walletAddress, isConnected } = useConnection();
 
@@ -76,6 +77,7 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
 
     const [feeBps, setFeeBps] = useState<number | null>(null);
     const [poolExists, setPoolExists] = useState(false);
+    const [isPairChecking, setIsPairChecking] = useState(true);
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [slippage, setSlippage] = useState(0);
@@ -118,24 +120,24 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
     }, [priceAWei, priceBWei, tokenADecimals, tokenBDecimals]);
 
     // Qualquer mudanca de rede recomeca o fluxo: novo par, novo preco, novos totalt
-    useEffect(() =>
-    {
-        const nextTokenA = getNativeToken(chainId);
-        const nextTokenB = getFirstNonNativeToken(chainId);
+    // useEffect(() =>
+    // {
+    //     const nextTokenA = getNativeToken(chainId);
+    //     const nextTokenB = getFirstNonNativeToken(chainId);
 
-        setTokenA(nextTokenA);
-        setTokenB(nextTokenB);
-        setTokenADecimals(nextTokenA.decimals);
-        setTokenBDecimals(nextTokenB.decimals);
+    //     setTokenA(nextTokenA);
+    //     setTokenB(nextTokenB);
+    //     setTokenADecimals(nextTokenA.decimals);
+    //     setTokenBDecimals(nextTokenB.decimals);
 
-        setIsPriceStep(false);
-        setPriceA("1");
-        setPriceB("");
-        setDepositA("");
-        setDepositB("");
-        setDepositSide(null);
-        setTxError(null);
-    }, [chainId]);
+    //     setIsPriceStep(false);
+    //     setPriceA("1");
+    //     setPriceB("");
+    //     setDepositA("");
+    //     setDepositB("");
+    //     setDepositSide(null);
+    //     setTxError(null);
+    // }, [chainId]);
 
     // Saldos e decimals de cada lado (nativo usa getBalance; ERC-20 usa balanceOf)
     useEffect(() =>
@@ -258,8 +260,11 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
 
             if(!ammCfg || isSameToken)
             {
+                setIsPairChecking(false);
                 return;
             }
+
+            setIsPairChecking(true);
 
             try
             {
@@ -272,11 +277,30 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
                     [ getAddress(tokenA.address), getAddress(tokenB.address) ],
                 ) as Address;
 
-                if(!isCancelled) setPoolExists(pair != ZERO_ADDRESS);
+                if(pair == ZERO_ADDRESS)
+                {
+                    if(!isCancelled) setPoolExists(false);
+                    return;
+                }
+
+                // A pair can exists with zero reserve (factory.createPair direto): no liquidity
+                const reserves = await callContractRead(
+                    chainId,
+                    getAddress(pair),
+                    pairAbi,
+                    "getReserves",
+                    [],
+                ) as readonly [bigint, bigint, number];
+
+                if(!isCancelled) setPoolExists(reserves[0] > 0n && reserves[1] > 0n);
             }
             catch
             {
                 if(!isCancelled) setPoolExists(false);
+            }
+            finally
+            {
+                if(!isCancelled) setIsPairChecking(false);
             }
         }
 
@@ -303,6 +327,7 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
         {
             if(depositAWei == null || depositAWei <= 0n)
             {
+                 // eslint-disable-next-line react-hooks/set-state-in-effect -- o lado espelhado precisa continuar editavel, entao o valor derivado vive em estado
                 setDepositB("");
                 return;
             }
@@ -547,8 +572,13 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
 
     async function OnCreatePoolClick()
     {
-        if(!ammCfg || isTxPending || !walletAddress || isSameToken || !isPriceValid || !isDepositValid || depositAWei == null || depositBWei == null)
+        if(!ammCfg || isTxPending || !walletAddress || isSameToken || poolExists || !isPriceValid || !isDepositValid || depositAWei == null || depositBWei == null)
         {
+            if(poolExists)
+            {
+                OnNotification("A pool with selected settings already exists. Please add liquidity instead.", "error", 10000);
+            }
+
             return;
         }
 
@@ -584,7 +614,7 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
                 const amountNativeMin = isNativeA ? amountAMin : amountBMin;
 
                 createCall = {
-                    address: ammCfg.router,
+                    address: getAddress(ammCfg.router),
                     abi: routerAbi,
                     functionName: "addLiquidityNative",
                     args: [ getAddress(erc20Token.address), amountTokenDesired, amountTokenMin, amountNativeMin, recipient, deadline ],
@@ -594,7 +624,7 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
             else
             {
                 createCall = {
-                    address: ammCfg.router,
+                    address: getAddress(ammCfg.router),
                     abi: routerAbi,
                     functionName: "addLiquidity",
                     args: [
@@ -612,10 +642,16 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
 
             await callContractWrite(chainId, createCall);
 
+            // OnNotification(
+            //     poolExists
+            //         ? "Liquidity added to " + tokenA.symbol + "/" + tokenB.symbol + "."
+            //         : "Pool " + tokenA.symbol + "/" + tokenB.symbol + " created.",
+            //     "success",
+            //     5000,
+            // );
+
             OnNotification(
-                poolExists
-                    ? "Liquidity added to " + tokenA.symbol + "/" + tokenB.symbol + "."
-                    : "Pool " + tokenA.symbol + "/" + tokenB.symbol + " created.",
+                "Pool " + tokenA.symbol + "/" + tokenB.symbol + " created.",
                 "success",
                 5000,
             );
@@ -634,6 +670,18 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
         {
             setIsTxPending(false);
         }
+    }
+
+    function OnAddLiquidityButtonClick()
+    {
+        if(onAddLiquidity)
+        {
+            onAddLiquidity(tokenA, tokenB);
+            return;
+        }
+
+        // Placeholder declarado: a janela de Add Liquidity ainda nao existe (ver PoolsForm)
+        OnNotification("Add Liquidity screen is not available yet.", "info", 4000);
     }
 
     // Mensagem de estado derivada no render (sem estado extra)
@@ -666,7 +714,7 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
 
     const isCreateDisabled = createMessage != null || isTxPending;
 
-    const canContinue = !isUnsupportedNetwork && !isSameToken;
+    const canContinue = !isUnsupportedNetwork && !isSameToken && !poolExists && !isPairChecking;
 
     const network = findNetwork(chainId);
 
@@ -793,13 +841,32 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
                             </span>
                         </div>
 
-                        <button
-                            onClick={() => setIsPriceStep(true)}
-                            disabled={!canContinue}
-                            className={(canContinue ? "swap-action-button" : "swap-action-button-disabled") + " w-full mt-1 transition-colors py-3.5 rounded-2xl font-semibold flex items-center justify-center gap-2"}
-                        >
-                            Continue
-                        </button>
+                        {!poolExists && (
+                            <button
+                                onClick={() => setIsPriceStep(true)}
+                                disabled={!canContinue}
+                                className={(canContinue ? "swap-action-button" : "swap-action-button-disabled") + " w-full mt-1 transition-colors py-3.5 rounded-2xl font-semibold flex items-center justify-center gap-2"}
+                            >
+                                {isPairChecking ? "Checking pool..." : "Continue"}
+                            </button>
+                        )}
+
+                        {poolExists && (
+                            <div>
+                                <div className="pool-note p-3 rounded-xl border mt-1 text-xs">
+                                    A pool with selected settings already exists. Please add liquidity instead.
+                                </div>
+
+                                <button
+                                    onClick={() => { OnAddLiquidityButtonClick() }}
+                                    className="swap-action-button w-full mt-3 transition-colors py-3.5 rounded-2xl font-semibold flex items-center justify-center gap-2"
+                                >
+                                    <PlusIcon className="w-4 h-4" />
+                                    Add Liquidity
+                                </button>
+                            </div>
+                        )}
+
                     </div>
                 )}
 
@@ -919,21 +986,15 @@ function CreatePoolWindow({chainId, changeChainId, onClose}: CreatePoolWindowPro
                             </div>
                         )}
 
-                        {poolExists && (
-                            <div className="pool-note p-3 rounded-xl border mt-3 text-xs">
-                                The {tokenA.symbol}/{tokenB.symbol} pool already exists. The Start Price is ignored &mdash; the deposit is added at the pool&apos;s current ratio.
-                            </div>
-                        )}
-
                         <ConnectWalletButton variant="swap" />
 
-                        {isConnected && (
+                        {isConnected && !poolExists && (
                             <button
                                 onClick={() => { OnCreatePoolClick() }}
                                 disabled={isCreateDisabled}
                                 className={(isCreateDisabled ? "swap-action-button-disabled" : "swap-action-button") + " w-full mt-3 transition-colors py-3.5 rounded-2xl font-semibold flex items-center justify-center gap-2"}
                             >
-                                {isTxPending ? "Creating pool..." : (createMessage ?? (poolExists ? "Add Liquidity" : "Create Pool & Add Liquidity"))}
+                                {isTxPending ? "Creating pool..." : (createMessage ?? "Create Pool & Add Liquidity")}
                             </button>
                         )}
 
