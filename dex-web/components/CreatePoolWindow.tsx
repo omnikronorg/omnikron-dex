@@ -660,6 +660,8 @@ function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onClose}: Cre
             setDepositB("");
             setDepositSide(null);
             setBalanceRefreshKey((key) => key + 1);
+            // setIsPriceStep(false);
+            onClose();
         }
         catch(error)
         {
@@ -674,14 +676,12 @@ function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onClose}: Cre
 
     function OnAddLiquidityButtonClick()
     {
-        if(onAddLiquidity)
+        if(!onAddLiquidity)
         {
-            onAddLiquidity(tokenA, tokenB);
             return;
         }
 
-        // Placeholder declarado: a janela de Add Liquidity ainda nao existe (ver PoolsForm)
-        OnNotification("Add Liquidity screen is not available yet.", "info", 4000);
+        onAddLiquidity(tokenA, tokenB);
     }
 
     // Mensagem de estado derivada no render (sem estado extra)
@@ -722,7 +722,7 @@ function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onClose}: Cre
         // O pai (overlay) captura o clique e fecha a janela
         <div
             className="swap-modal-overlay fixed pt-45 inset-0 z-50 overflow-y-auto h-full w-full flex items-start justify-center"
-            onClick={onClose}
+            // onClick={onClose}
         >
             {/* O filho (conteudo) impede que o clique se propague para o pai */}
             <div

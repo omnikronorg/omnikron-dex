@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useConnection } from "wagmi";
 import CreatePoolWindow from "./CreatePoolWindow";
+import { Token } from "@/lib/tokens";
+import NotificationCard, { NotificationCardProps } from "./NotificationCard";
 
 interface PoolsFormProps
 {
@@ -16,6 +18,8 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
     const { address: walletAddress, isConnected } = useConnection();
     const chain = findSupportedChain(chainId);
 
+    const [notification, setNotification] = useState<NotificationCardProps | null>(null);
+
     const [createPoolWindowOpened, setCreatePoolWindowOpened] = useState(false);
 
     function OnCreatePoolWindowOpen()
@@ -26,6 +30,26 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
     function OnCreatePoolWindowClose()
     {
         setCreatePoolWindowOpened(false);
+    }
+
+    function OnAddLiquidity(tokenA: Token, tokenB: Token)
+    {
+        // Placeholder declarado: a janela de Add Liquidity ainda nao existe
+        OnNotification("Add Liquidity screen is not available yet.", "info", 4000);
+
+    }
+
+    function OnNotification(message: string, messageType: "success" | "error" | "info", duration: number)
+    {
+        setNotification({
+            id: Date.now().toString(),
+            message,
+            messageType,
+            duration,
+            onClose: () => {
+                setNotification(null);
+            }
+        });
     }
 
     return (
@@ -66,6 +90,17 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
                     chainId={chainId}
                     changeChainId={changeChainId}
                     onClose={OnCreatePoolWindowClose}
+                    onAddLiquidity={OnAddLiquidity}
+                />
+            )}
+
+            {notification && (
+                <NotificationCard
+                    id={notification.id}
+                    message={notification.message}
+                    messageType={notification.messageType}
+                    duration={notification.duration}
+                    onClose={notification.onClose}
                 />
             )}
         </div>
