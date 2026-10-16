@@ -268,6 +268,7 @@ function SwapForm({chainId, changeChainId, isTokenSelectOpen, setIsTokenSelectOp
         {
             if(quoteSide == "from")
             {
+                // eslint-disable-next-line react-hooks/set-state-in-effect -- o lado espelhado precisa continuar editavel, entao o valor derivado vive em estado
                 setToAmount("");
                 return;
             }
