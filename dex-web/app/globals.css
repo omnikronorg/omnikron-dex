@@ -82,6 +82,18 @@ body {
     cursor: pointer;
 }
 
+.swap-feature-button{
+    /* background-color: var(--color-primary); */
+    background-color: color-mix(in oklab, var(--color-primary) 65%, transparent);
+    color: var(--color-default);
+    cursor: pointer;
+}
+
+.swap-feature-button:hover{
+    background-color: color-mix(in oklab, var(--color-primary) 90%, transparent);
+    cursor: pointer;
+}
+
 .swap-slippage-percent-value{
     color: var(--color-default2);
 }
