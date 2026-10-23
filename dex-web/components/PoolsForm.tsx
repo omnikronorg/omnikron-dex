@@ -6,6 +6,8 @@ import { useConnection } from "wagmi";
 import CreatePoolWindow from "./CreatePoolWindow";
 import { Token } from "@/lib/tokens";
 import NotificationCard, { NotificationCardProps } from "./NotificationCard";
+import UserPoolsList from "./UserPoolsList";
+import { UserPool } from "@/lib/pools";
 
 interface PoolsFormProps
 {
@@ -52,6 +54,16 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
         });
     }
 
+    function OnPoolListItemAddLiquidityButtonClick(tokenA: Token, tokenB: Token)
+    {
+        OnNotification("Add Liquidity screen is not available yet.", "info", 4000);
+    }
+
+    function OnPoolListItemRemoveLiquidityButtonClick(pool: UserPool)
+    {
+        OnNotification("Remove Liquidity screen is not available yet.", "info", 4000);
+    }
+
     return (
         <div className="swap-card w-full max-w-[480px] p-4 rounded-3xl border shadow-xl">
             <div className="flex justify-between items-center mb-3 px-1">
@@ -83,6 +95,16 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
                     Add Liquidity
                     
                 </button>
+            </div>
+
+            <div className="mt-6">
+                <div className="swap-label text-xs block mb-2">My Positions</div>
+                {!isConnected && (
+                    <div className="pool-section p-3 rounded-2xl border">
+                        <div className="pool-section-label text-xs">Connect your wallet to see your positions.</div>
+                    </div>
+                )}
+                <UserPoolsList chainId={chainId} OnAddLiquidity={OnPoolListItemAddLiquidityButtonClick} OnRemoveLiquidity={OnPoolListItemRemoveLiquidityButtonClick} />
             </div>
 
             {createPoolWindowOpened && (
