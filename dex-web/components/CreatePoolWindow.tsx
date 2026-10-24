@@ -25,6 +25,7 @@ interface CreatePoolWindowProps
     chainId: number;
     changeChainId(value: number): void;
     onAddLiquidity?(tokenA: Token, tokenB: Token): void;
+    onLiquidityCreated?(): void;
     onClose(): void;
 }
 
@@ -42,7 +43,7 @@ function resolveNetworkLogo(logoURI: string): string
     return logoURI && logoURI.length > 0 ? logoURI : "/network/generic.svg";
 }
 
-function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onClose}: CreatePoolWindowProps)
+function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onLiquidityCreated, onClose}: CreatePoolWindowProps)
 {
     const { address: walletAddress, isConnected } = useConnection();
 
@@ -649,6 +650,9 @@ function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onClose}: Cre
             //     "success",
             //     5000,
             // );
+
+            // Transação confirmada com sucesso: avisa o pai que um novo pool/liquidez foi criada
+            onLiquidityCreated?.();
 
             OnNotification(
                 "Pool " + tokenA.symbol + "/" + tokenB.symbol + " created.",

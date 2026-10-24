@@ -11,11 +11,12 @@ import { type Token } from "@/lib/tokens";
 interface UserPoolsListProps
 {
     chainId: number;
+    refreshKey: number;
     OnAddLiquidity(tokenA: Token, tokenB: Token): void;
     OnRemoveLiquidity(pool: UserPool): void;
 }
 
-function UserPoolsList({chainId, OnAddLiquidity, OnRemoveLiquidity}: UserPoolsListProps)
+function UserPoolsList({chainId, refreshKey, OnAddLiquidity, OnRemoveLiquidity}: UserPoolsListProps)
 {
     const { address: walletAddress, isConnected } = useConnection();
 
@@ -66,7 +67,7 @@ function UserPoolsList({chainId, OnAddLiquidity, OnRemoveLiquidity}: UserPoolsLi
         loadUserPools();
 
         return () => { isCancelled = true; };
-    }, [chainId, walletAddress, isConnected]);
+    }, [chainId, walletAddress, isConnected, refreshKey]);
 
     if(!isConnected || !walletAddress)
     {

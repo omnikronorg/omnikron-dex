@@ -24,6 +24,9 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
 
     const [createPoolWindowOpened, setCreatePoolWindowOpened] = useState(false);
 
+    const [poolRefreshKey, setPoolRefreshKey] = useState(0);
+
+
     function OnCreatePoolWindowOpen()
     {
         setCreatePoolWindowOpened(true);
@@ -38,7 +41,11 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
     {
         // Placeholder declarado: a janela de Add Liquidity ainda nao existe
         OnNotification("Add Liquidity screen is not available yet.", "info", 4000);
+    }
 
+    function OnLiquidityCreated()
+    {
+        setPoolRefreshKey(prev => prev + 1); // dispara reload na lista de pools
     }
 
     function OnNotification(message: string, messageType: "success" | "error" | "info", duration: number)
@@ -104,7 +111,14 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
                         <div className="pool-section-label text-xs">Connect your wallet to see your positions.</div>
                     </div>
                 )}
-                <UserPoolsList chainId={chainId} OnAddLiquidity={OnPoolListItemAddLiquidityButtonClick} OnRemoveLiquidity={OnPoolListItemRemoveLiquidityButtonClick} />
+
+                <UserPoolsList 
+                    chainId={chainId} 
+                    refreshKey={poolRefreshKey}
+                    OnAddLiquidity={OnPoolListItemAddLiquidityButtonClick} 
+                    OnRemoveLiquidity={OnPoolListItemRemoveLiquidityButtonClick} 
+                />
+
             </div>
 
             {createPoolWindowOpened && (
@@ -113,6 +127,7 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
                     changeChainId={changeChainId}
                     onClose={OnCreatePoolWindowClose}
                     onAddLiquidity={OnAddLiquidity}
+                    onLiquidityCreated={OnLiquidityCreated}
                 />
             )}
 
