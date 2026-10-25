@@ -8,6 +8,7 @@ import { Token } from "@/lib/tokens";
 import NotificationCard, { NotificationCardProps } from "./NotificationCard";
 import UserPoolsList from "./UserPoolsList";
 import { UserPool } from "@/lib/pools";
+import AddLiquidity from "./AddLiquidity";
 
 interface PoolsFormProps
 {
@@ -23,8 +24,13 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
     const [notification, setNotification] = useState<NotificationCardProps | null>(null);
 
     const [createPoolWindowOpened, setCreatePoolWindowOpened] = useState(false);
+    const [addLiquidityWindowOpened, setAddLiquidityWindowOpened] = useState(false);
 
     const [poolRefreshKey, setPoolRefreshKey] = useState(0);
+
+
+    const [pendingTokenA, setPendingTokenA] = useState<Token | null>(null);
+    const [pendingTokenB, setPendingTokenB] = useState<Token | null>(null);
 
 
     function OnCreatePoolWindowOpen()
@@ -37,13 +43,26 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
         setCreatePoolWindowOpened(false);
     }
 
-    function OnAddLiquidity(tokenA: Token, tokenB: Token)
+    function OnAddLiquidity(tokenA: Token | null | undefined, tokenB: Token | null | undefined)
     {
-        // Placeholder declarado: a janela de Add Liquidity ainda nao existe
-        OnNotification("Add Liquidity screen is not available yet.", "info", 4000);
+        setPendingTokenA(tokenA ?? null);
+        setPendingTokenB(tokenB ?? null);
+        setAddLiquidityWindowOpened(true);
+    }
+
+    function OnAddLiquidityWindowClose()
+    {
+        setAddLiquidityWindowOpened(false);
+        setPendingTokenA(null);
+        setPendingTokenB(null);
     }
 
     function OnLiquidityCreated()
+    {
+        setPoolRefreshKey(prev => prev + 1); // dispara reload na lista de pools
+    }
+
+    function OnLiquidityAdded()
     {
         setPoolRefreshKey(prev => prev + 1); // dispara reload na lista de pools
     }
@@ -63,7 +82,7 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
 
     function OnPoolListItemAddLiquidityButtonClick(tokenA: Token, tokenB: Token)
     {
-        OnNotification("Add Liquidity screen is not available yet.", "info", 4000);
+        OnAddLiquidity(tokenA, tokenB);
     }
 
     function OnPoolListItemRemoveLiquidityButtonClick(pool: UserPool)
@@ -95,7 +114,7 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
                 </button>
 
                 <button 
-                    onClick={() => {}}
+                    onClick={() => OnAddLiquidity(null, null)}
                     className="swap-action-button px-3 py-3 mt-3 transition-colors rounded-xl font-semibold flex items-center justify-center gap-2"
                 >
                     <PlusIcon />
@@ -129,6 +148,17 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
                     onAddLiquidity={OnAddLiquidity}
                     onLiquidityCreated={OnLiquidityCreated}
                 />
+            )}
+
+            {addLiquidityWindowOpened && (
+                <AddLiquidity
+                    chainId={chainId}
+                    changeChainId={changeChainId}
+                    initialTokenA={pendingTokenA ?? undefined}
+                    initialTokenB={pendingTokenB ?? undefined}
+                    onAddLiquiditySuccess={OnLiquidityAdded}
+                    onClose={OnAddLiquidityWindowClose}
+                 />
             )}
 
             {notification && (
