@@ -24,6 +24,8 @@ interface CreatePoolWindowProps
 {
     chainId: number;
     changeChainId(value: number): void;
+    initialTokenA?: Token;
+    initialTokenB?: Token;
     onAddLiquidity?(tokenA: Token, tokenB: Token): void;
     onLiquidityCreated?(): void;
     onClose(): void;
@@ -43,7 +45,7 @@ function resolveNetworkLogo(logoURI: string): string
     return logoURI && logoURI.length > 0 ? logoURI : "/network/generic.svg";
 }
 
-function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onLiquidityCreated, onClose}: CreatePoolWindowProps)
+function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onLiquidityCreated, onClose, initialTokenA: initialTokenAProp, initialTokenB: initialTokenBProp}: CreatePoolWindowProps)
 {
     const { address: walletAddress, isConnected } = useConnection();
 
@@ -54,8 +56,8 @@ function CreatePoolWindow({chainId, changeChainId, onAddLiquidity, onLiquidityCr
     const isUnsupportedNetwork = !chain || getTokenList(chainId).length === 0;
 
     // Par de tokens: A e o primeiro lado (ex.: OMNIKRON), B e o segundo (ex.: BNB)
-    const initialTokenA = getNativeToken(chainId);
-    const initialTokenB = getFirstNonNativeToken(chainId);
+    const initialTokenA = initialTokenAProp ?? getNativeToken(chainId);
+    const initialTokenB = initialTokenBProp ?? getFirstNonNativeToken(chainId);
 
     const [tokenA, setTokenA] = useState<Token>(initialTokenA);
     const [tokenB, setTokenB] = useState<Token>(initialTokenB);

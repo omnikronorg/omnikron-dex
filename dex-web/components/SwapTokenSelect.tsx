@@ -37,7 +37,7 @@ function getNetwork(chainId: number)
 
 
 function SwapTokenSelect({onClose, isTokenSelectFrom, chainId, walletAddress, OnTokenSelectChainIdChanged, OnTokenSelected}: TokenSelectProps)
-{
+{   
     const networkList = getNetworkList();
     const tokenList = getTokenList(chainId);
 
@@ -46,6 +46,15 @@ function SwapTokenSelect({onClose, isTokenSelectFrom, chainId, walletAddress, On
 
     const erc20Tokens = tokenList.filter((token) => !token.isNative);
     const nativeToken = tokenList.find((token) => token.isNative);
+
+    const [ search, setSearch ] = useState("");
+
+    const searchTerm = search.trim().toLowerCase();
+    const visibleTokens = searchTerm.length == 0
+        ? tokenList
+        : tokenList.filter((token) =>
+            token.symbol.toLowerCase().includes(searchTerm) ||
+            token.name.toLowerCase().includes(searchTerm));
 
     // 1 multicall para todos os ERC-20 da lista; desabilita sem carteira conectada
     const balancesQuery = useReadContracts({
@@ -148,6 +157,8 @@ function SwapTokenSelect({onClose, isTokenSelectFrom, chainId, walletAddress, On
                             type="text"
                             placeholder="Search name or paste address"
                             className="swap-modal-search-input bg-transparent w-full focus:outline-none text-sm font-medium"
+                            value={search}
+                            onChange={(event) => { setSearch(event.target.value) }}
                         />
                     </div>
 
