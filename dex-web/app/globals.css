@@ -549,3 +549,11 @@ body {
     color: var(--color-default);
     font-weight: 600;
 }
+
+/* ---------- Pools: Remove Liquidity ---------- */
+
+.pool-range {
+    accent-color: var(--color-primary);
+    width: 100%;
+    cursor: pointer;
+}

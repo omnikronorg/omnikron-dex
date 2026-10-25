@@ -130,6 +130,9 @@ function AddLiquidity({chainId, changeChainId, onClose, initialTokenA, initialTo
     const [isTokenSelectOpen, setIsTokenSelectOpen] = useState(false);
     const [tokenSelectSide, setTokenSelectSide] = useState<"a" | "b">("a");
 
+    const [allowanceA, setAllowanceA] = useState<bigint | undefined>(undefined);
+    const [allowanceB, setAllowanceB] = useState<bigint | undefined>(undefined);
+
     const [isTxPending, setIsTxPending] = useState(false);
     const [txError, setTxError] = useState<string | null>(null);
 
@@ -184,6 +187,13 @@ function AddLiquidity({chainId, changeChainId, onClose, initialTokenA, initialTo
 
         return whole.toString() + "." + fraction + "%";
     }, [pool, tokenA, depositAWei, depositBWei]);
+
+    const needsApprovalA = !tokenA.isNative && depositAWei != null && depositAWei > 0n && allowanceA != null && allowanceA < depositAWei;
+    const needsApprovalB = !tokenB.isNative && depositBWei != null && depositBWei > 0n && allowanceB != null && allowanceB < depositBWei;
+    // const needsApprovalA = !tokenA.isNative && depositAWei != null && depositAWei > 0n && (allowanceA ?? 0n) < depositAWei;
+    // const needsApprovalB = !tokenB.isNative && depositBWei != null && depositBWei > 0n && (allowanceB ?? 0n) < depositBWei;
+    
+    const needsApproval = needsApprovalA || needsApprovalB;
 
     // Motivo do bloqueio, derivado no render (sem estado extra)
     let addMessage: string | null = null;
@@ -279,7 +289,31 @@ function AddLiquidity({chainId, changeChainId, onClose, initialTokenA, initialTo
             setTokenBDecimals(nextB.decimals);
         }
 
+        async function readAllowance(targetChainId: number, token: Token)
+        {
+            if(!walletAddress || token.isNative || !ammCfg)
+            {
+                return undefined;
+            }
+
+            try
+            {
+                return await getAllowance(targetChainId, getAddress(walletAddress), getAddress(ammCfg.router), getAddress(token.address));
+            }
+            catch
+            {
+                return undefined;
+            }
+        }
+
+        async function checkAllowances()
+        {
+            setAllowanceA(await readAllowance(chainId, tokenA));
+            setAllowanceB(await readAllowance(chainId, tokenB));
+        }
+
         syncBalances();
+        checkAllowances();
 
         // Cleanup: descarta a resposta de um par que ja nao e o atual (evita corrida)
         return () => { isCancelled = true; };
@@ -642,9 +676,16 @@ function AddLiquidity({chainId, changeChainId, onClose, initialTokenA, initialTo
             const amountAMin = (depositAWei * (10000n - toleranceBps)) / 10000n;
             const amountBMin = (depositBWei * (10000n - toleranceBps)) / 10000n;
 
+            if(needsApproval)
+            {
+                await approveIfNeeded(needsApprovalA ? tokenA : tokenB, needsApprovalA ? depositAWei! : depositBWei!);
+                setRefreshKey((key) => key + 1);
+                return; // volta ao usuario com o botao "Remove/Add" liberado
+            }
+
             // ERC-20 paga via transferFrom: allowance antes do mint
-            await approveIfNeeded(tokenA, depositAWei);
-            await approveIfNeeded(tokenB, depositBWei);
+            // await approveIfNeeded(tokenA, depositAWei);
+            // await approveIfNeeded(tokenB, depositBWei);
 
             const recipient = getAddress(walletAddress);
             const deadline = BigInt(Math.floor(Date.now() / 1000) + DEADLINE_MINUTES * 60);
@@ -884,7 +925,7 @@ function AddLiquidity({chainId, changeChainId, onClose, initialTokenA, initialTo
                                 disabled={isAddDisabled}
                                 className={(isAddDisabled ? "swap-action-button-disabled" : "swap-action-button") + " w-full mt-3 transition-colors py-3.5 rounded-2xl font-semibold flex items-center justify-center gap-2"}
                             >
-                                {isTxPending ? "Adding liquidity..." : (addMessage ?? "Add Liquidity")}
+                                {isTxPending ? "Adding liquidity..." : (addMessage ?? (needsApproval ? "Enable " + (needsApprovalA ? tokenA.symbol : tokenB.symbol) : "Add Liquidity"))}
                             </button>
                         )}
 
