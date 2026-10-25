@@ -9,6 +9,7 @@ import NotificationCard, { NotificationCardProps } from "./NotificationCard";
 import UserPoolsList from "./UserPoolsList";
 import { UserPool } from "@/lib/pools";
 import AddLiquidity from "./AddLiquidity";
+import RemoveLiquidity from "./RemoveLiquidity";
 
 interface PoolsFormProps
 {
@@ -25,6 +26,9 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
 
     const [createPoolWindowOpened, setCreatePoolWindowOpened] = useState(false);
     const [addLiquidityWindowOpened, setAddLiquidityWindowOpened] = useState(false);
+
+    const [removeLiquidityWindowOpened, setRemoveLiquidityWindowOpened] = useState(false);
+    const [pendingPool, setPendingPool] = useState<UserPool | null>(null);
 
     const [poolRefreshKey, setPoolRefreshKey] = useState(0);
 
@@ -87,7 +91,8 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
 
     function OnPoolListItemRemoveLiquidityButtonClick(pool: UserPool)
     {
-        OnNotification("Remove Liquidity screen is not available yet.", "info", 4000);
+        setPendingPool(pool);
+        setRemoveLiquidityWindowOpened(true);
     }
 
     function OnAddLiquidityCreatePool(tokenA: Token, tokenB: Token)
@@ -96,6 +101,17 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
         setPendingTokenB(tokenB);
         setAddLiquidityWindowOpened(false);
         setCreatePoolWindowOpened(true);
+    }
+
+    function OnRemoveLiquidityWindowClose()
+    {
+        setRemoveLiquidityWindowOpened(false);
+        setPendingPool(null);
+    }
+
+    function OnLiquidityRemoved()
+    {
+        setPoolRefreshKey(prev => prev + 1); // dispara reload na lista de pools
     }
 
     return (
@@ -169,6 +185,15 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
                     onAddLiquiditySuccess={OnLiquidityAdded}
                     onCreatePool={OnAddLiquidityCreatePool}
                     onClose={OnAddLiquidityWindowClose}
+                />
+            )}
+
+            {removeLiquidityWindowOpened && pendingPool && (
+                <RemoveLiquidity
+                    chainId={chainId}
+                    pool={pendingPool}
+                    onRemoveLiquiditySuccess={OnLiquidityRemoved}
+                    onClose={OnRemoveLiquidityWindowClose}
                 />
             )}
 
