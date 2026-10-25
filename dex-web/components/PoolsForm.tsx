@@ -90,6 +90,14 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
         OnNotification("Remove Liquidity screen is not available yet.", "info", 4000);
     }
 
+    function OnAddLiquidityCreatePool(tokenA: Token, tokenB: Token)
+    {
+        setPendingTokenA(tokenA);
+        setPendingTokenB(tokenB);
+        setAddLiquidityWindowOpened(false);
+        setCreatePoolWindowOpened(true);
+    }
+
     return (
         <div className="swap-card w-full max-w-[480px] p-4 rounded-3xl border shadow-xl">
             <div className="flex justify-between items-center mb-3 px-1">
@@ -144,6 +152,8 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
                 <CreatePoolWindow
                     chainId={chainId}
                     changeChainId={changeChainId}
+                    initialTokenA={pendingTokenA ?? undefined}
+                    initialTokenB={pendingTokenB ?? undefined}
                     onClose={OnCreatePoolWindowClose}
                     onAddLiquidity={OnAddLiquidity}
                     onLiquidityCreated={OnLiquidityCreated}
@@ -157,8 +167,9 @@ function PoolsForm({chainId, changeChainId}: PoolsFormProps)
                     initialTokenA={pendingTokenA ?? undefined}
                     initialTokenB={pendingTokenB ?? undefined}
                     onAddLiquiditySuccess={OnLiquidityAdded}
+                    onCreatePool={OnAddLiquidityCreatePool}
                     onClose={OnAddLiquidityWindowClose}
-                 />
+                />
             )}
 
             {notification && (
